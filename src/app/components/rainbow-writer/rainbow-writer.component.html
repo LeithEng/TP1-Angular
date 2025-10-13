@@ -1,0 +1,120 @@
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow">
+        <div class="card-header bg-gradient-primary text-white">
+          <h3 class="mb-0">
+            <i class="fa fa-rainbow me-2" aria-hidden="true"></i>
+            Rainbow Writer
+          </h3>
+        </div>
+
+        <div class="card-body">
+          <div class="alert alert-info" role="alert">
+            <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
+            <strong>Comment ça marche ?</strong>
+            À chaque frappe de touche, la couleur du texte et de la bordure
+            change aléatoirement !
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="inputName" class="form-label">
+                <i class="fa fa-pencil me-2" aria-hidden="true"></i>
+                Nom / Titre
+              </label>
+              <input
+                id="inputName"
+                [(ngModel)]="userInput"
+                type="text"
+                class="form-control form-control-lg"
+                placeholder="Écrivez quelque chose..."
+                appRainbowWriter
+              />
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="inputDesc" class="form-label">
+                <i class="fa fa-align-left me-2" aria-hidden="true"></i>
+                Description
+              </label>
+              <input
+                id="inputDesc"
+                [(ngModel)]="description"
+                type="text"
+                class="form-control form-control-lg"
+                placeholder="Ajoutez une description..."
+                appRainbowWriter
+              />
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h5 class="card-title">Valeurs actuelles :</h5>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p class="mb-2">
+                        <strong>Nom :</strong>
+                        <span class="text-muted">{{
+                          userInput || "(vide)"
+                        }}</span>
+                      </p>
+                    </div>
+                    <div class="col-md-6">
+                      <p class="mb-2">
+                        <strong>Description :</strong>
+                        <span class="text-muted">{{
+                          description || "(vide)"
+                        }}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-12">
+              <button
+                (click)="clearInputs()"
+                [disabled]="!userInput && !description"
+                class="btn btn-outline-danger"
+              >
+                <i class="fa fa-trash me-2" aria-hidden="true"></i>
+                Effacer tout
+              </button>
+            </div>
+          </div>
+          <div class="alert alert-warning mt-4 mb-0" role="alert">
+            <i class="fa fa-exclamation-triangle me-2" aria-hidden="true"></i>
+            <strong>Note :</strong> Cette directive ne fonctionne que sur les
+            éléments <code>&lt;input&gt;</code>. Elle n'aura aucun effet sur une
+            <code>&lt;div&gt;</code> ou un <code>&lt;textarea&gt;</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Test : La directive ne fonctionne PAS ici</h5>
+        </div>
+        <div class="card-body">
+          <div class="p-3 border rounded" appRainbowWriter>
+            Ceci est une DIV avec la directive - aucun effet ne se produit ici
+          </div>
+
+          <textarea
+            class="form-control mt-3"
+            rows="3"
+            placeholder="Ceci est un textarea avec la directive - aucun effet non plus"
+            appRainbowWriter
+          ></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

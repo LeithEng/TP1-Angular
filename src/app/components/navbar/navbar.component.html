@@ -67,6 +67,14 @@
           >Rh</a
         >
         <a
+          class="nav-link"
+          [routerLink]="['rainbow-writer']"
+          routerLinkActive="active text-primary"
+        >
+          <i class="fa fa-rainbow me-1" aria-hidden="true"></i>
+          Rainbow
+        </a>
+        <a
           *ngIf="!authService.isAuthenticated()"
           class="nav-link"
           [routerLink]="['login']"
