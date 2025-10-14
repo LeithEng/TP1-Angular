@@ -1,20 +1,96 @@
-<form #loginForm="ngForm">
-  <div class="mb-3">
-    <label for="exampleInputEmail1" class="form-label">Email address</label>
-    <input #emailInput="ngModel" email required ngModel name="email" type="email" class="form-control"
-      id="exampleInputEmail1" aria-describedby="emailHelp">
-      <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-      @if (emailInput.invalid && emailInput.touched) {
-        <div class="alert alert-danger">
-          Veuillez saisir un email correct
-        </div>
-      }
-    </div>
-    <div class="mb-3">
-      <label for="exampleInputPassword1" class="form-label">Password</label>
-      <input ngModel required minlength="4" name="password" type="password" class="form-control"
-        id="exampleInputPassword1">
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo">
+        <i class="fa fa-lock" aria-hidden="true"></i>
       </div>
-      <button (click)="login(loginForm.value)" [disabled]="loginForm.invalid" type="submit"
-      class="btn btn-primary">Submit</button>
+      <h2>Connexion</h2>
+      <p class="subtitle">Connectez-vous à votre compte</p>
+    </div>
+    @if (errorMessageSignal()) {
+    <div class="alert alert-danger">
+      <i class="fa fa-exclamation-circle me-2" aria-hidden="true"></i>
+      {{ errorMessageSignal() }}
+      <button class="btn-close-alert" title="close-alert" (click)="clearError()">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    }
+    <form (ngSubmit)="onLogin()" class="login-form">
+      <div class="form-group">
+        <label for="email">
+          <i class="fa fa-envelope me-2" aria-hidden="true"></i>
+          Adresse email
+        </label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="exemple@email.com"
+          [disabled]="isLoadingSignal()"
+          required
+          autocomplete="email"
+        />
+      </div>
+      <div class="form-group">
+        <label for="password">
+          <i class="fa fa-key me-2" aria-hidden="true"></i>
+          Mot de passe
+        </label>
+        <div class="password-input-wrapper">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            class="form-control"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="Entrez votre mot de passe"
+            [disabled]="isLoadingSignal()"
+            required
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="btn-toggle-password"
+            title="toggle-password"
+            (click)="togglePasswordVisibility()"
+            [disabled]="isLoadingSignal()"
+          >
+            <i
+              class="fa"
+              [class.fa-eye]="!showPassword"
+              [class.fa-eye-slash]="showPassword"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </div>
+      </div>
+      <div class="form-options">
+        <div class="form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="rememberMe"
+            [disabled]="isLoadingSignal()"
+          />
+          <label class="form-check-label" for="rememberMe">
+            Se souvenir de moi
+          </label>
+        </div>
+      </div>
+      <button
+        type="submit"
+        class="btn btn-primary btn-login"
+        [disabled]="isLoadingSignal() || !email.trim() || !password.trim()"
+      >
+        @if (isLoadingSignal()) {
+        <i class="fa fa-spinner fa-spin me-2" aria-hidden="true"></i>
+        Connexion en cours... } @else {
+        <i class="fa fa-sign-in me-2" aria-hidden="true"></i>
+        Se connecter }
+      </button>
     </form>
+  </div>
+</div>

@@ -26,4 +26,7 @@ export class NavbarComponent {
     this.router.navigate([APP_ROUTES.login]);
     this.toastr.warning(`Au plaisir de vous revoir :(`);
   }
+  goToLogin(): void {
+    this.router.navigate(['/login']);
+  }
 }
