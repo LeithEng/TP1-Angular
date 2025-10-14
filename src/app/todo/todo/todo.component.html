@@ -1,18 +1,275 @@
-<div class="row">
-  <div class="col">
-    <ol class="list-group">
-      @for (todo of todos; track todo) {
-        <li class="list-group-item">
-          {{todo.name}} : {{todo.content}}
-          <i (click)="deleteTodo(todo)" class="fa fa-trash" aria-hidden="true"></i>
-        </li>
-      }
-    </ol>
-  </div>
-  <div class="col">
-    name: <input [(ngModel)]="todo.name" type="text" class="form-control">
-    content: <input [(ngModel)]="todo.content" type="text" class="form-control">
-    <button (click)="addTodo()" [disabled]="!todo.name.trim() || !todo.content.trim()"
-    class="btn btn-primary m-2">add</button>
+<div class="todo-manager">
+  <div class="header">
+    <h1>
+      <i class="fa fa-tasks me-2" aria-hidden="true"></i>
+      Todo Manager
+    </h1>
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-number">{{ todoService.totalCount() }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">{{ todoService.waitingCount() }}</span>
+        <span class="stat-label">En attente</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">{{ todoService.inProgressCount() }}</span>
+        <span class="stat-label">En cours</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">{{ todoService.doneCount() }}</span>
+        <span class="stat-label">Terminé</span>
+      </div>
+    </div>
+    <br>
+    <div class="add-todo-section">
+      <h3>
+        <i class="fa fa-plus-circle me-2" aria-hidden="true"></i>
+        Ajouter une nouvelle tâche
+      </h3>
+
+      <div class="add-todo-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="todoName">
+              <i class="fa fa-tag me-1" aria-hidden="true"></i>
+              Nom de la tâche
+            </label>
+            <input
+              id="todoName"
+              [(ngModel)]="newTodoName"
+              type="text"
+              class="form-control"
+              placeholder="Ex: Apprendre Angular Signals"
+              (keyup.enter)="addTodo()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="todoContent">
+              <i class="fa fa-align-left me-1" aria-hidden="true"></i>
+              Description
+            </label>
+            <input
+              id="todoContent"
+              [(ngModel)]="newTodoContent"
+              type="text"
+              class="form-control"
+              placeholder="Ex: Maîtriser les computed signals"
+              (keyup.enter)="addTodo()"
+            />
+          </div>
+        </div>
+
+        <button
+          (click)="addTodo()"
+          [disabled]="!newTodoName.trim() || !newTodoContent.trim()"
+          class="btn btn-primary btn-add"
+        >
+          <i class="fa fa-plus me-2" aria-hidden="true"></i>
+          Ajouter la tâche
+        </button>
+      </div>
+    </div>
+    <div class="actions-bar">
+      <button
+        (click)="clearDoneTodos()"
+        [disabled]="todoService.doneCount() === 0"
+        class="btn btn-outline-warning"
+      >
+        <i class="fa fa-broom me-2" aria-hidden="true"></i>
+        Nettoyer les tâches terminées
+      </button>
+
+      <button
+        (click)="toggleClearConfirm()"
+        [disabled]="todoService.totalCount() === 0"
+        class="btn btn-outline-danger"
+      >
+        <i class="fa fa-trash me-2" aria-hidden="true"></i>
+        Tout supprimer
+      </button>
+    </div>
+    @if (showClearConfirm) {
+    <div class="modal-overlay" (click)="toggleClearConfirm()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h4>
+          <i class="fa fa-exclamation-triangle me-2" aria-hidden="true"></i>
+          Confirmation
+        </h4>
+        <p>Êtes-vous sûr de vouloir supprimer toutes les tâches ?</p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" (click)="toggleClearConfirm()">
+            Annuler
+          </button>
+          <button class="btn btn-danger" (click)="clearAllTodos()">
+            Confirmer
+          </button>
+        </div>
+      </div>
+    </div>
+    }
+    <div class="todo-lists">
+      <div class="todo-column waiting-column">
+        <div class="column-header">
+          <h2>
+            <i class="fa fa-clock-o me-2" aria-hidden="true"></i>
+            En attente
+            <span class="badge">{{ todoService.waitingCount() }}</span>
+          </h2>
+        </div>
+
+        <div class="todo-cards">
+          @if (todoService.waitingCount() === 0) {
+          <div class="empty-state">
+            <i class="fa fa-inbox" aria-hidden="true"></i>
+            <p>Aucune tâche en attente</p>
+          </div>
+          } @for (todo of todoService.waitingTodos(); track todo.id) {
+          <div class="todo-card">
+            <div class="todo-card-header">
+              <h4>{{ todo.name }}</h4>
+              <button
+                class="btn-icon btn-delete"
+                (click)="deleteTodo(todo.id)"
+                title="Supprimer"
+              >
+                <i class="fa fa-trash" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <p class="todo-content">{{ todo.content }}</p>
+
+            @if (todo.createdAt) {
+            <div class="todo-date">
+              <i class="fa fa-calendar me-1" aria-hidden="true"></i>
+              <small>{{ todo.createdAt | date : "short" }}</small>
+            </div>
+            }
+
+            <div class="todo-actions">
+              <button
+                class="btn btn-sm btn-primary"
+                (click)="changeStatus(todo.id, 'in progress')"
+              >
+                <i class="fa fa-play me-1" aria-hidden="true"></i>
+                Démarrer
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      <div class="todo-column progress-column">
+        <div class="column-header">
+          <h2>
+            <i class="fa fa-spinner me-2" aria-hidden="true"></i>
+            En cours
+            <span class="badge">{{ todoService.inProgressCount() }}</span>
+          </h2>
+        </div>
+
+        <div class="todo-cards">
+          @if (todoService.inProgressCount() === 0) {
+          <div class="empty-state">
+            <i class="fa fa-inbox" aria-hidden="true"></i>
+            <p>Aucune tâche en cours</p>
+          </div>
+          } @for (todo of todoService.inProgressTodos(); track todo.id) {
+          <div class="todo-card">
+            <div class="todo-card-header">
+              <h4>{{ todo.name }}</h4>
+              <button
+                class="btn-icon btn-delete"
+                (click)="deleteTodo(todo.id)"
+                title="Supprimer"
+              >
+                <i class="fa fa-trash" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <p class="todo-content">{{ todo.content }}</p>
+
+            @if (todo.updatedAt || todo.createdAt) {
+            <div class="todo-date">
+              <i class="fa fa-calendar me-1" aria-hidden="true"></i>
+              <small>{{
+                todo.updatedAt || todo.createdAt | date : "short"
+              }}</small>
+            </div>
+            }
+
+            <div class="todo-actions">
+              <button
+                class="btn btn-sm btn-warning"
+                (click)="changeStatus(todo.id, 'waiting')"
+              >
+                <i class="fa fa-pause me-1" aria-hidden="true"></i>
+                Pause
+              </button>
+              <button
+                class="btn btn-sm btn-success"
+                (click)="changeStatus(todo.id, 'done')"
+              >
+                <i class="fa fa-check me-1" aria-hidden="true"></i>
+                Terminer
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      <div class="todo-column done-column">
+        <div class="column-header">
+          <h2>
+            <i class="fa fa-check-circle me-2" aria-hidden="true"></i>
+            Terminé
+            <span class="badge">{{ todoService.doneCount() }}</span>
+          </h2>
+        </div>
+
+        <div class="todo-cards">
+          @if (todoService.doneCount() === 0) {
+          <div class="empty-state">
+            <i class="fa fa-inbox" aria-hidden="true"></i>
+            <p>Aucune tâche terminée</p>
+          </div>
+          } @for (todo of todoService.doneTodos(); track todo.id) {
+          <div class="todo-card completed">
+            <div class="todo-card-header">
+              <h4>{{ todo.name }}</h4>
+              <button
+                class="btn-icon btn-delete"
+                (click)="deleteTodo(todo.id)"
+                title="Supprimer"
+              >
+                <i class="fa fa-trash" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <p class="todo-content">{{ todo.content }}</p>
+
+            @if (todo.updatedAt) {
+            <div class="todo-date">
+              <i class="fa fa-check me-1" aria-hidden="true"></i>
+              <small>Terminé le {{ todo.updatedAt | date : "short" }}</small>
+            </div>
+            }
+
+            <div class="todo-actions">
+              <button
+                class="btn btn-sm btn-secondary"
+                (click)="changeStatus(todo.id, 'in progress')"
+              >
+                <i class="fa fa-undo me-1" aria-hidden="true"></i>
+                Réactiver
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
   </div>
 </div>

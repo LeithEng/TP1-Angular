@@ -1,3 +1,18 @@
-export class Todo {
-  constructor(public name = '', public content = '') {}
+/* ************************************************************************** */
+/*                                  Types                                     */
+/* ************************************************************************** */
+
+export type TodoStatus = 'waiting' | 'in progress' | 'done';
+
+/* ************************************************************************** */
+/*                                Interfaces                                  */
+/* ************************************************************************** */
+
+export interface Todo {
+  id: number;
+  name: string;
+  content: string;
+  status: TodoStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
