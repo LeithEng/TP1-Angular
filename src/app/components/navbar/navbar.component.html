@@ -75,6 +75,12 @@
           <i class="fa fa-rainbow me-1" aria-hidden="true"></i>
           Rainbow
         </a>
+        <a
+          class="nav-link"
+          [routerLink]="['ttc-calculator']"
+          routerLinkActive="active text-primary"
+          >TTC Calculator</a
+        >
         @if (!authService.isAuthenticated()) {
         <a
           class="nav-link"

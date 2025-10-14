@@ -1,0 +1,133 @@
+<div class="ttc-calculator">
+  <div class="calculator-header">
+    <h2>
+      <i class="fa fa-calculator me-2" aria-hidden="true"></i>
+      Calculateur de Prix TTC
+    </h2>
+  </div>
+  <div class="calculator-body">
+    <div class="form-group">
+      <label for="unitPrice">
+        <i class="fa fa-tag me-2" aria-hidden="true"></i>
+        Prix unitaire HT (DT) :
+      </label>
+      <input
+        id="unitPrice"
+        type="number"
+        class="form-control"
+        [(ngModel)]="unitPrice"
+        (ngModelChange)="onUnitPriceChange($event)"
+        min="0"
+        step="0.01"
+        placeholder="Entrez le prix unitaire"
+      />
+    </div>
+    <div class="form-group">
+      <label for="quantity">
+        <i class="fa fa-cubes me-2" aria-hidden="true"></i>
+        Quantité :
+      </label>
+      <input
+        id="quantity"
+        type="number"
+        class="form-control"
+        [(ngModel)]="quantity"
+        (ngModelChange)="onQuantityChange($event)"
+        min="1"
+        placeholder="Entrez la quantité"
+      />
+      @if (discountPercentage() > 0) {
+      <small class="discount-badge">
+        <i class="fa fa-gift me-1" aria-hidden="true"></i>
+        Remise de {{ discountPercentage() }}% applicable !
+      </small>
+      }
+    </div>
+    <div class="form-group">
+      <label for="vat">
+        <i class="fa fa-percent me-2" aria-hidden="true"></i>
+        TVA (%) :
+      </label>
+      <input
+        id="vat"
+        type="number"
+        class="form-control"
+        [(ngModel)]="vat"
+        (ngModelChange)="onVatChange($event)"
+        min="0"
+        max="100"
+        step="0.5"
+        placeholder="Entrez la TVA"
+      />
+    </div>
+    <div class="form-group">
+      <button class="btn btn-outline-secondary w-100" (click)="reset()">
+        <i class="fa fa-refresh me-2" aria-hidden="true"></i>
+        Réinitialiser
+      </button>
+    </div>
+  </div>
+  <div class="results">
+    <h4 class="results-title">
+      <i class="fa fa-list-alt me-2" aria-hidden="true"></i>
+      Détails du calcul
+    </h4>
+    <div class="result-item">
+      <span class="result-label">Prix HT :</span>
+      <span class="result-value">
+        {{ priceBeforeTax() | number : "1.2-2" }} DT
+      </span>
+    </div>
+    @if (discountPercentage() > 0) {
+    <div class="result-item discount">
+      <span class="result-label">
+        <i class="fa fa-tag me-1" aria-hidden="true"></i>
+        Remise ({{ discountPercentage() }}%) :
+      </span>
+      <span class="result-value">
+        -{{ discountAmount() | number : "1.2-2" }} DT
+      </span>
+    </div>
+
+    <div class="result-item">
+      <span class="result-label">Prix après remise :</span>
+      <span class="result-value">
+        {{ priceAfterDiscount() | number : "1.2-2" }} DT
+      </span>
+    </div>
+    }
+    <div class="result-item">
+      <span class="result-label"> Montant TVA ({{ vatSignal() }}%) : </span>
+      <span class="result-value">
+        {{ vatAmount() | number : "1.2-2" }} DT
+      </span>
+    </div>
+
+    <hr class="result-divider" />
+    <div class="result-item total">
+      <span class="result-label">
+        <i class="fa fa-money me-2" aria-hidden="true"></i>
+        <strong>Prix TTC Final :</strong>
+      </span>
+      <span class="result-value">
+        <strong>{{ finalPrice() | number : "1.2-2" }} DT</strong>
+      </span>
+    </div>
+  </div>
+  <div class="info-section">
+    <h5>
+      <i class="fa fa-info-circle me-2" aria-hidden="true"></i>
+      Barème des remises
+    </h5>
+    <ul>
+      <li>
+        <strong>10 à 15 pièces :</strong>
+        <span class="badge bg-info">20% de remise</span>
+      </li>
+      <li>
+        <strong>Plus de 15 pièces :</strong>
+        <span class="badge bg-success">30% de remise</span>
+      </li>
+    </ul>
+  </div>
+</div>
