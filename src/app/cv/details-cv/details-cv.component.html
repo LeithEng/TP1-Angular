@@ -1,11 +1,18 @@
-<div class="d-flex justify-content-center" *ngIf="cv">
-  <div class="col-lg-8 push-lg-4">
+<div class="d-flex justify-content-center">
+  <div class="col-lg-8 push-lg-4" *ngIf="cv$ | async as cv">
     <div class="tab-content p-b-3">
       <div class="tab-pane active" id="profile">
         <h4 class="m-y-2">Cv {{ cv.firstname }} {{ cv.name }}</h4>
+
         <div class="d-flex justify-content-center">
-          <img width="150px" height="150px" class="rounded-circle align-content-center"
-            src="assets/images/{{ cv.path | defaultImage }}" alt="{{ cv.name }}" />
+          <img
+            width="150px"
+            title="cv"
+            height="150px"
+            class="rounded-circle align-content-center"
+            [src]="'assets/images/' + (cv.path | defaultImage)"
+            [alt]="cv.name"
+          />
         </div>
         <div class="row">
           <div class="col-md-12">
@@ -16,13 +23,13 @@
             <table class="table table-hover table-striped">
               <tbody>
                 <tr>
-                  <td><strong>Name</strong> {{ cv.name }}</td>
+                  <td><strong>Nom</strong> {{ cv.name }}</td>
                 </tr>
                 <tr>
-                  <td><strong>Firstname</strong> {{ cv.firstname }}</td>
+                  <td><strong>Prénom</strong> {{ cv.firstname }}</td>
                 </tr>
                 <tr>
-                  <td><strong>Job</strong> {{ cv.job }}</td>
+                  <td><strong>Poste</strong> {{ cv.job }}</td>
                 </tr>
                 <tr>
                   <td><strong>Age</strong> {{ cv.age }}</td>
@@ -32,14 +39,15 @@
                 </tr>
               </tbody>
             </table>
-            <div class="d-flex justify-content-center">
-              <button *ngIf="authService.isAuthenticated()" (click)="deleteCv(cv)" class="btn btn-danger">
-                Delete
-              </button>
-            </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  <div class="col-lg-8" *ngIf="!(cv$ | async)">
+    <div class="text-center p-5">
+      <i class="fa fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
+      <p class="mt-3">Chargement du CV...</p>
     </div>
   </div>
 </div>

@@ -1,18 +1,44 @@
-import { Component, OnInit } from '@angular/core';
-import { Cv } from '../model/cv';
-import { CvService } from '../services/cv.service';
+/* ************************************************************************** */
+/*                                Dependencies                                */
+/* ************************************************************************** */
+
+// Lib dependencies
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
-import { APP_ROUTES } from '../../../config/routes.config';
+import { Observable, Subject, catchError, takeUntil, tap } from 'rxjs';
+
+// Services
+import { CvService } from '../services/cv.service';
 import { AuthService } from '../../auth/services/auth.service';
+import { ToastrService } from 'ngx-toastr';
+
+// Models
+import { Cv } from '../model/cv';
+
+// Config
+import { APP_ROUTES } from '../../../config/routes.config';
+
+/* ************************************************************************** */
+/*                                 Component                                  */
+/* ************************************************************************** */
 
 @Component({
   selector: 'app-details-cv',
   templateUrl: './details-cv.component.html',
   styleUrls: ['./details-cv.component.css'],
 })
-export class DetailsCvComponent implements OnInit {
-  cv: Cv | null = null;
+export class DetailsCvComponent implements OnInit, OnDestroy {
+  /* ********************************************************************** */
+  /*                            Properties                                  */
+  /* ********************************************************************** */
+
+  cv$!: Observable<Cv>;
+  private destroy$ = new Subject<void>();
+
+  /* ********************************************************************** */
+  /*                            Constructor                                 */
+  /* ********************************************************************** */
+
   constructor(
     private cvService: CvService,
     private router: Router,
@@ -21,28 +47,36 @@ export class DetailsCvComponent implements OnInit {
     public authService: AuthService
   ) {}
 
-  ngOnInit() {
-    const id = this.activatedRoute.snapshot.params['id'];
-    this.cvService.getCvById(+id).subscribe({
-        next: (cv) => {
-          this.cv = cv;
-        },
-        error: (e) => {
-          this.router.navigate([APP_ROUTES.cv]);
-        },
-      });
+  /* ********************************************************************** */
+  /*                            Lifecycle Hooks                             */
+  /* ********************************************************************** */
+
+  ngOnInit(): void {
+    this.loadCv();
   }
-  deleteCv(cv: Cv) {
-    this.cvService.deleteCvById(cv.id).subscribe({
-      next: () => {
-        this.toastr.success(`${cv.name} supprimé avec succès`);
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+  
+  /* ********************************************************************** */
+  /*                            Private Methods                             */
+  /* ********************************************************************** */
+
+  private loadCv(): void {
+    const id = this.activatedRoute.snapshot.params['id'];
+
+    this.cv$ = this.cvService.getCvById(+id).pipe(
+      tap((cv) => {
+        console.log('CV chargé:', cv);
+      }),
+      catchError((error) => {
+        console.error('Erreur lors du chargement du CV:', error);
+        this.toastr.error('CV introuvable');
         this.router.navigate([APP_ROUTES.cv]);
-      },
-      error: () => {
-        this.toastr.error(
-          `Problème avec le serveur veuillez contacter l'admin`
-        );
-      },
-    });
+        throw error;
+      })
+    );
   }
 }
