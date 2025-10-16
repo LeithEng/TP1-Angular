@@ -28,14 +28,6 @@ export class TtcCalculatorComponent {
   vatSignal = signal(18);
 
   /* ********************************************************************** */
-  /*                    Properties (Two-way binding)                        */
-  /* ********************************************************************** */
-
-  unitPrice = this.unitPriceSignal();
-  quantity = this.quantitySignal();
-  vat = this.vatSignal();
-
-  /* ********************************************************************** */
   /*                           Computed Signals                             */
   /* ********************************************************************** */
 
@@ -70,22 +62,7 @@ export class TtcCalculatorComponent {
   /*                            Public Methods                              */
   /* ********************************************************************** */
 
-  onUnitPriceChange(value: number): void {
-    this.unitPriceSignal.set(value);
-  }
-
-  onQuantityChange(value: number): void {
-    this.quantitySignal.set(value);
-  }
-
-  onVatChange(value: number): void {
-    this.vatSignal.set(value);
-  }
-
   reset(): void {
-    this.unitPrice = 0;
-    this.quantity = 1;
-    this.vat = 18;
     this.unitPriceSignal.set(0);
     this.quantitySignal.set(1);
     this.vatSignal.set(18);
