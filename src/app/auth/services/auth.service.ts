@@ -3,30 +3,41 @@
 /* ************************************************************************** */
 
 // Lib dependencies
-import { Injectable, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map, catchError, of } from 'rxjs';
 
 // Models
 import { User, AuthState } from '../model/auth.model';
 
 // DTOs
-import { LoginCredentialsDto, LoginResponseDto, UpdateUserDto } from '../dto/auth.dto';
+import {
+  LoginCredentialsDto,
+  LoginResponseDto,
+  UpdateUserDto,
+} from '../dto/auth.dto';
 
 // Constants
 import { AUTH_STORAGE_KEY } from '../constants/auth.constants';
+
+// Config
+import { API } from '../../../config/api.config';
 
 /* ************************************************************************** */
 /*                                  Service                                   */
 /* ************************************************************************** */
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   /* ********************************************************************** */
   /*                          Private Properties                            */
   /* ********************************************************************** */
 
+  private http = inject(HttpClient);
+  private router = inject(Router);
   private authStateSignal = signal<AuthState>(this.loadAuthStateFromStorage());
 
   /* ********************************************************************** */
@@ -40,10 +51,10 @@ export class AuthService {
   userFullName = computed(() => {
     const user = this.authStateSignal().user;
     if (!user) return '';
-    
+
     const firstName = user.firstName || '';
     const lastName = user.lastName || '';
-    
+
     return `${firstName} ${lastName}`.trim() || user.email;
   });
 
@@ -51,7 +62,7 @@ export class AuthService {
   /*                            Constructor                                 */
   /* ********************************************************************** */
 
-  constructor(private router: Router) {
+  constructor() {
     effect(() => {
       this.saveAuthStateToStorage(this.authStateSignal());
     });
@@ -61,51 +72,62 @@ export class AuthService {
   /*                       Public Methods                                   */
   /* ********************************************************************** */
 
-  login(credentialsDto: LoginCredentialsDto): LoginResponseDto {
-    if (this.validateCredentials(credentialsDto)) {
-      const user: User = {
-        id: Date.now(),
+  login(credentialsDto: LoginCredentialsDto): Observable<LoginResponseDto> {
+    return this.http
+      .post<any>(API.login, {
         email: credentialsDto.email,
-        firstName: this.extractFirstName(credentialsDto.email),
-        lastName: 'User',
-        role: 'user'
-      };
+        password: credentialsDto.password,
+      })
+      .pipe(
+        map((response) => {
+          const user: User = {
+            id: response.id,
+            email: credentialsDto.email,
+            firstName: this.extractFirstName(credentialsDto.email),
+            lastName: 'User',
+            role: 'user',
+          };
 
-      this.setAuthState({
-        user,
-        isAuthenticated: true
-      });
+          this.setAuthState({
+            user,
+            isAuthenticated: true,
+          });
 
-      return new LoginResponseDto(
-        true,
-        user,
-        'fake-jwt-token-' + Date.now(),
-        'Connexion réussie'
+          return new LoginResponseDto(
+            true,
+            user,
+            response.id,
+            'Connexion réussie'
+          );
+        }),
+        catchError((error) => {
+          console.error('Login error:', error);
+          return of(
+            new LoginResponseDto(
+              false,
+              undefined,
+              undefined,
+              error.error?.message || 'Email ou mot de passe incorrect'
+            )
+          );
+        })
       );
-    }
-
-    return new LoginResponseDto(
-      false,
-      undefined,
-      undefined,
-      'Email ou mot de passe incorrect'
-    );
   }
   logout(): void {
     this.setAuthState({
       user: null,
-      isAuthenticated: false
+      isAuthenticated: false,
     });
 
     this.router.navigate(['/login']);
   }
   updateUser(updateDto: UpdateUserDto): boolean {
     const currentUser = this.user();
-    
+
     if (currentUser) {
       this.setAuthState({
         user: { ...currentUser, ...updateDto },
-        isAuthenticated: true
+        isAuthenticated: true,
       });
       return true;
     }
@@ -134,10 +156,6 @@ export class AuthService {
     this.authStateSignal.set(state);
   }
 
-  private validateCredentials(credentialsDto: LoginCredentialsDto): boolean {
-    return credentialsDto.email.length > 0 && credentialsDto.password.length > 0;
-  }
-
   private extractFirstName(email: string): string {
     const name = email.split('@')[0];
     return name.charAt(0).toUpperCase() + name.slice(1);
@@ -150,12 +168,12 @@ export class AuthService {
   private loadAuthStateFromStorage(): AuthState {
     try {
       const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      
+
       if (stored) {
         const parsed = JSON.parse(stored);
         return {
           user: parsed.user || null,
-          isAuthenticated: parsed.isAuthenticated || false
+          isAuthenticated: parsed.isAuthenticated || false,
         };
       }
     } catch (error) {
@@ -164,7 +182,7 @@ export class AuthService {
 
     return {
       user: null,
-      isAuthenticated: false
+      isAuthenticated: false,
     };
   }
 
@@ -176,11 +194,4 @@ export class AuthService {
     }
   }
 
-  private clearAuthStateFromStorage(): void {
-    try {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-    } catch (error) {
-      console.error('Error clearing auth state from storage:', error);
-    }
-  }
 }

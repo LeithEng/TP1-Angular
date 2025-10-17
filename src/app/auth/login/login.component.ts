@@ -22,7 +22,7 @@ import { LoginCredentialsDto } from '../dto/auth.dto';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.css',
 })
 export class LoginComponent {
   /* ********************************************************************** */
@@ -55,19 +55,30 @@ export class LoginComponent {
     if (!this.validateInputs()) {
       return;
     }
+
     this.isLoadingSignal.set(true);
     const credentialsDto = new LoginCredentialsDto(this.email, this.password);
-    setTimeout(() => {
-      const response = this.authService.login(credentialsDto);
 
-      this.isLoadingSignal.set(false);
+    this.authService.login(credentialsDto).subscribe({
+      next: (response) => {
+        this.isLoadingSignal.set(false);
 
-      if (response.success) {
-        this.router.navigate(['/']);
-      } else {
-        this.errorMessageSignal.set(response.message || 'Erreur de connexion');
-      }
-    }, 500);
+        if (response.success) {
+          this.router.navigate(['/']);
+        } else {
+          this.errorMessageSignal.set(
+            response.message || 'Erreur de connexion'
+          );
+        }
+      },
+      error: (error) => {
+        this.isLoadingSignal.set(false);
+        this.errorMessageSignal.set(
+          'Une erreur est survenue. Veuillez réessayer.'
+        );
+        console.error('Login error:', error);
+      },
+    });
   }
 
   togglePasswordVisibility(): void {
@@ -99,7 +110,9 @@ export class LoginComponent {
     }
 
     if (this.password.length < 6) {
-      this.errorMessageSignal.set('Le mot de passe doit contenir au moins 6 caractères');
+      this.errorMessageSignal.set(
+        'Le mot de passe doit contenir au moins 6 caractères'
+      );
       return false;
     }
 
