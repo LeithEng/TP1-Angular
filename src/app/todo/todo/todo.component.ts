@@ -5,7 +5,7 @@
 // Lib dependencies
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common'; 
+import { DatePipe } from '@angular/common';
 
 // Service
 import { TodoService } from '../service/todo.service';
@@ -35,6 +35,7 @@ export class TodoComponent {
   /*                            Properties                                  */
   /* ********************************************************************** */
 
+  TodoStatus = TodoStatus;
   newTodoName = '';
   newTodoContent = '';
   showClearConfirm = false;

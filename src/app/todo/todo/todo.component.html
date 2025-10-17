@@ -22,7 +22,7 @@
         <span class="stat-label">Terminé</span>
       </div>
     </div>
-    <br>
+    <br />
     <div class="add-todo-section">
       <h3>
         <i class="fa fa-plus-circle me-2" aria-hidden="true"></i>
@@ -151,7 +151,7 @@
             <div class="todo-actions">
               <button
                 class="btn btn-sm btn-primary"
-                (click)="changeStatus(todo.id, 'in progress')"
+                (click)="changeStatus(todo.id, TodoStatus.IN_PROGRESS)"
               >
                 <i class="fa fa-play me-1" aria-hidden="true"></i>
                 Démarrer
@@ -203,14 +203,14 @@
             <div class="todo-actions">
               <button
                 class="btn btn-sm btn-warning"
-                (click)="changeStatus(todo.id, 'waiting')"
+                (click)="changeStatus(todo.id, TodoStatus.WAITING)"
               >
                 <i class="fa fa-pause me-1" aria-hidden="true"></i>
                 Pause
               </button>
               <button
                 class="btn btn-sm btn-success"
-                (click)="changeStatus(todo.id, 'done')"
+                (click)="changeStatus(todo.id, TodoStatus.DONE)"
               >
                 <i class="fa fa-check me-1" aria-hidden="true"></i>
                 Terminer
@@ -260,7 +260,7 @@
             <div class="todo-actions">
               <button
                 class="btn btn-sm btn-secondary"
-                (click)="changeStatus(todo.id, 'in progress')"
+                (click)="changeStatus(todo.id, TodoStatus.IN_PROGRESS)"
               >
                 <i class="fa fa-undo me-1" aria-hidden="true"></i>
                 Réactiver

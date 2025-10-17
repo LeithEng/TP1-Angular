@@ -25,21 +25,21 @@ export class TodoService {
       id: 1,
       name: 'Apprendre Angular',
       content: 'Maîtriser les signals et le nouveau control flow',
-      status: 'in progress',
+      status: TodoStatus.IN_PROGRESS,
       createdAt: new Date(),
     },
     {
       id: 2,
       name: 'Faire le TP',
       content: 'Compléter tous les exercices du TP1',
-      status: 'waiting',
+      status: TodoStatus.WAITING,
       createdAt: new Date(),
     },
     {
       id: 3,
       name: "Réviser pour l'examen",
       content: "Préparer l'examen de GL4",
-      status: 'waiting',
+      status: TodoStatus.WAITING,
       createdAt: new Date(),
     },
   ]);
@@ -51,13 +51,13 @@ export class TodoService {
   /* ********************************************************************** */
 
   waitingTodos = computed(() =>
-    this.todosSignal().filter((todo) => todo.status === 'waiting')
+    this.todosSignal().filter((todo) => todo.status === TodoStatus.WAITING)
   );
   inProgressTodos = computed(() =>
-    this.todosSignal().filter((todo) => todo.status === 'in progress')
+    this.todosSignal().filter((todo) => todo.status === TodoStatus.IN_PROGRESS)
   );
   doneTodos = computed(() =>
-    this.todosSignal().filter((todo) => todo.status === 'done')
+    this.todosSignal().filter((todo) => todo.status === TodoStatus.DONE)
   );
   allTodos = computed(() => this.todosSignal());
   totalCount = computed(() => this.todosSignal().length);
@@ -74,7 +74,7 @@ export class TodoService {
       id: this.nextId++,
       name: name.trim(),
       content: content.trim(),
-      status: 'waiting',
+      status: TodoStatus.WAITING,
       createdAt: new Date(),
     };
 
@@ -118,7 +118,7 @@ export class TodoService {
 
   clearDoneTodos(): void {
     this.todosSignal.update((todos) =>
-      todos.filter((todo) => todo.status !== 'done')
+      todos.filter((todo) => todo.status !== TodoStatus.DONE)
     );
   }
 }
