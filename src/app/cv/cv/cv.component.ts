@@ -23,13 +23,25 @@ import { Cv } from '../model/cv';
   templateUrl: './cv.component.html',
   styleUrls: ['./cv.component.css'],
 })
-export class CvComponent implements OnInit {
+export class CvComponent {
   /* ********************************************************************** */
   /*                            Properties                                  */
   /* ********************************************************************** */
 
-  cvs$!: Observable<Cv[]>;
-  selectedCv$!: Observable<Cv | null>;
+  cvs$: Observable<Cv[]> = this.cvService.getCvs().pipe(
+    tap((cvs) => {
+      this.logger.logger(`${cvs.length} CVs chargés avec succès`);
+    }),
+    catchError((error) => {
+      console.error('Erreur lors du chargement des CVs:', error);
+      this.toastr.error(
+        `Attention!! Les données sont fictives, problème avec le serveur. 
+          Veuillez contacter l'admin.`
+      );
+      return of(this.cvService.getFakeCvs());
+    })
+  );
+  selectedCv$ = this.cvService.selectCv$;
   date = new Date();
 
   /* ********************************************************************** */
@@ -49,43 +61,29 @@ export class CvComponent implements OnInit {
   /*                            Lifecycle Hooks                             */
   /* ********************************************************************** */
 
-  ngOnInit(): void {
-    this.initializeCvs();
-    this.initializeSelectedCv();
-  }
+  // ngOnInit(): void {
+  //   this.initializeCvs();
+  //   this.initializeSelectedCv();
+  // }
 
   /* ********************************************************************** */
   /*                            Private Methods                             */
   /* ********************************************************************** */
 
-  private initializeCvs(): void {
-    this.cvs$ = this.cvService.getCvs().pipe(
-      tap((cvs) => {
-        this.logger.logger(`${cvs.length} CVs chargés avec succès`);
-      }),
-      catchError((error) => {
-        console.error('Erreur lors du chargement des CVs:', error);
-        this.toastr.error(
-          `Attention!! Les données sont fictives, problème avec le serveur. 
-          Veuillez contacter l'admin.`
-        );
-        return of(this.cvService.getFakeCvs());
-      })
-    );
-  }
+  // private initializeCvs(): void {}
 
-  private initializeSelectedCv(): void {
-    this.selectedCv$ = this.cvService.selectCv$.pipe(
-      tap((cv) => {
-        if (cv) {
-          this.logger.logger(`CV sélectionné: ${cv.firstname} ${cv.name}`);
-        }
-      }),
-      catchError((error) => {
-        console.error('Erreur lors de la sélection du CV:', error);
-        this.toastr.error('Erreur lors de la sélection du CV');
-        return of(null);
-      })
-    );
-  }
+  // private initializeSelectedCv(): void {
+  //   this.selectedCv$ = this.cvService.selectCv$.pipe(
+  //     tap((cv) => {
+  //       if (cv) {
+  //         this.logger.logger(`CV sélectionné: ${cv.firstname} ${cv.name}`);
+  //       }
+  //     }),
+  //     catchError((error) => {
+  //       console.error('Erreur lors de la sélection du CV:', error);
+  //       this.toastr.error('Erreur lors de la sélection du CV');
+  //       return of(null);
+  //     })
+  //   );
+  // }
 }
