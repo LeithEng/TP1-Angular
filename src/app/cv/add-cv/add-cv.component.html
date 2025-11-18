@@ -1,7 +1,13 @@
 <p>add-cv works!</p>
 <form [formGroup]="form">
   Name:
-  <input type="text" class="form-control" formControlName="name" />
+  <input
+    type="text"
+    class="form-control"
+    formControlName="name"
+    placeholder="Nom"
+    title="Nom"
+  />
   <div
     *ngIf="form.get('name')?.errors && form.get('name')?.touched"
     class="alert alert-danger"
@@ -9,9 +15,35 @@
     Ce champ est obligatoire
   </div>
   Firstname:
-  <input type="text" class="form-control" formControlName="firstname" /> Age:
-  <input type="text" class="form-control" formControlName="age" /> Cin:
-  <input type="text" class="form-control" formControlName="cin" />
+  <input
+    type="text"
+    class="form-control"
+    formControlName="firstname"
+    placeholder="Prénom"
+    title="Prénom"
+  />
+  Age:
+  <input
+    type="text"
+    class="form-control"
+    formControlName="age"
+    placeholder="Âge"
+    title="Âge"
+  />
+  Cin:
+  <input
+    type="text"
+    class="form-control"
+    formControlName="cin"
+    placeholder="CIN (8 chiffres)"
+    title="CIN"
+  />
+  <div
+    *ngIf="cin?.hasError('cinTaken') && cin?.touched"
+    class="alert alert-danger"
+  >
+    Ce CIN est déjà utilisé.
+  </div>
   <div
     *ngIf="
       form.errors && form.errors['cinFirstCars'] && cin?.touched && age?.touched
@@ -20,10 +52,32 @@
   >
     Cette Cin est invalide
   </div>
-  Job: <input type="text" class="form-control" formControlName="job" /> Path:
-  <input type="text" class="form-control" formControlName="path" />
+  Job:
+  <input
+    type="text"
+    class="form-control"
+    formControlName="job"
+    placeholder="Métier"
+    title="Métier"
+  />
+  Path:
+  <input
+    type="text"
+    class="form-control"
+    formControlName="path"
+    placeholder="Chemin image"
+    title="Chemin de l'image"
+  />
+  <div *ngIf="path?.disabled" class="form-text text-muted">
+    Le chemin de l'image est désactivé pour les mineurs (age &lt; 18).
+  </div>
 
-  <button [disabled]="form.invalid" class="btn btn-primary" (click)="addCv()">
+  <button
+    type="button"
+    [disabled]="form.invalid"
+    class="btn btn-primary"
+    (click)="addCv()"
+  >
     add cv
   </button>
 </form>
