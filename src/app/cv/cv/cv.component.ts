@@ -28,7 +28,7 @@ export class CvComponent {
   /*                            Properties                                  */
   /* ********************************************************************** */
 
-  cvs$: Observable<Cv[]> = this.cvService.getCvs().pipe(
+  cvs$: Observable<Cv[]> = this.cvService.filteredCvs$.pipe(
     tap((cvs) => {
       this.logger.logger(`${cvs.length} CVs chargés avec succès`);
     }),

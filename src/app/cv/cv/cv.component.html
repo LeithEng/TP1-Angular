@@ -3,6 +3,7 @@
     <div class="alert alert-warning">
       {{ date | date : "full" | uppercase }}
     </div>
+    <app-autocomplete></app-autocomplete>
     <app-list [cvs]="(cvs$ | async) || []"></app-list>
   </div>
   <div class="col">

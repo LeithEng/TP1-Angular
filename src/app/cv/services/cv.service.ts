@@ -1,11 +1,19 @@
-import { Injectable } from "@angular/core";
-import { Cv } from "../model/cv";
-import { Observable, Subject } from "rxjs";
-import { HttpClient, HttpParams } from "@angular/common/http";
-import { API } from "../../../config/api.config";
+import { Injectable } from '@angular/core';
+import { Cv } from '../model/cv';
+import { Observable, Subject, BehaviorSubject, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  shareReplay,
+  switchMap,
+} from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { API } from '../../../config/api.config';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class CvService {
   private cvs: Cv[] = [];
@@ -17,10 +25,28 @@ export class CvService {
    * Le flux des cvs sélectionnés
    */
   selectCv$ = this.#selectCvSuject$.asObservable();
+  private filterTerm$ = new BehaviorSubject<string>('');
+  filteredCvs$: Observable<Cv[]> = this.filterTerm$.pipe(
+    debounceTime(200),
+    distinctUntilChanged(),
+    switchMap((term) => {
+      const t = (term ?? '').trim();
+      if (!t || t.length < 2) {
+        return this.getCvs().pipe(catchError(() => of(this.getFakeCvs())));
+      }
+      return this.selectByName(t).pipe(
+        map((res: any) =>
+          Array.isArray(res) ? (res as Cv[]) : ((res.data ?? res) as Cv[])
+        ),
+        catchError(() => of([]))
+      );
+    }),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
   constructor(private http: HttpClient) {
     this.cvs = [
-      new Cv(1, "aymen", "sellaouti", "teacher", "as.jpg", "1234", 40),
-      new Cv(2, "skander", "sellaouti", "enfant", "       ", "1234", 4),
+      new Cv(1, 'aymen', 'sellaouti', 'teacher', 'as.jpg', '1234', 40),
+      new Cv(2, 'skander', 'sellaouti', 'enfant', '       ', '1234', 4),
     ];
   }
 
@@ -108,7 +134,7 @@ export class CvService {
    */
   selectByName(name: string) {
     const search = `{"where":{"name":{"like":"%${name}%"}}}`;
-    const params = new HttpParams().set("filter", search);
+    const params = new HttpParams().set('filter', search);
     return this.http.get<any>(API.cv, { params });
   }
   /**
@@ -119,8 +145,15 @@ export class CvService {
    */
   selectByProperty(property: string, value: string) {
     const search = `{"where":{"${property}":"${value}"}}`;
-    const params = new HttpParams().set("filter", search);
+    const params = new HttpParams().set('filter', search);
     return this.http.get<Cv[]>(API.cv, { params });
+  }
+
+  /**
+   * Set the current filter term (used by autocomplete to update the list)
+   */
+  setFilter(term: string) {
+    this.filterTerm$.next(term);
   }
 
   /**
