@@ -1,0 +1,8 @@
+:host {
+  display: block;
+  padding-top: 10px;
+}
+
+.border-end {
+  border-right: 1px solid #e5e5e5;
+}

@@ -5,7 +5,16 @@
 // Lib dependencies
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subject, catchError, takeUntil, tap } from 'rxjs';
+import {
+  Observable,
+  Subject,
+  catchError,
+  takeUntil,
+  tap,
+  map,
+  switchMap,
+  throwError,
+} from 'rxjs';
 
 // Services
 import { CvService } from '../services/cv.service';
@@ -59,15 +68,16 @@ export class DetailsCvComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-  
+
   /* ********************************************************************** */
   /*                            Private Methods                             */
   /* ********************************************************************** */
 
   private loadCv(): void {
-    const id = this.activatedRoute.snapshot.params['id'];
-
-    this.cv$ = this.cvService.getCvById(+id).pipe(
+    this.cv$ = this.activatedRoute.params.pipe(
+      takeUntil(this.destroy$),
+      map((params) => +params['id']),
+      switchMap((id) => this.cvService.getCvById(id)),
       tap((cv) => {
         console.log('CV chargé:', cv);
       }),
@@ -75,7 +85,7 @@ export class DetailsCvComponent implements OnInit, OnDestroy {
         console.error('Erreur lors du chargement du CV:', error);
         this.toastr.error('CV introuvable');
         this.router.navigate([APP_ROUTES.cv]);
-        throw error;
+        return throwError(() => error);
       })
     );
   }
