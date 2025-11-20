@@ -6,6 +6,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   switchMap,
+  tap,
 } from 'rxjs/operators';
 import { CvService } from '../services/cv.service';
 import { Cv } from '../model/cv';
@@ -27,22 +28,11 @@ export class AutocompleteComponent {
     map((v) => (v ?? '').toString().trim()),
     debounceTime(300),
     distinctUntilChanged(),
+    tap((term) => this.cvService.setFilter(term)),
     switchMap((term) =>
       term.length >= 2 ? this.cvService.filteredCvs$ : of([])
     )
   );
-
-  constructor() {
-    this.search.valueChanges
-      .pipe(
-        map((v) => (v ?? '').toString().trim()),
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe((term) => {
-        this.cvService.setFilter(term);
-      });
-  }
   selected: Cv | null = null;
 
   select(cv: Cv) {
